@@ -1,14 +1,158 @@
--- You can add your own plugins here or in other files in this directory!
---  I promise not to create any merge conflicts in this directory :)
---
---
--- See the kickstart.nvim README for more information
 return {
+  {
+    'epwalsh/obsidian.nvim',
+    version = '*', -- recommended, use latest release instead of latest commit
+    lazy = true,
+    ft = 'markdown',
+    -- Replace the above line with this if you only want to load obsidian.nvim for markdown files in your vault:
+    -- event = {
+    --   -- If you want to use the home shortcut '~' here you need to call 'vim.fn.expand'.
+    --   -- E.g. "BufReadPre " .. vim.fn.expand "~" .. "/my-vault/**.md"
+    --   "BufReadPre path/to/my-vault/**.md",
+    --   "BufNewFile path/to/my-vault/**.md",
+    -- },
+    dependencies = {
+      -- Required.
+      'nvim-lua/plenary.nvim',
+    },
+    opts = {
+      workspaces = {
+        {
+          name = 'main',
+          path = '~/Desktop/Obsidian',
+        },
+      },
+      -- Optional, for templates (see below).
+      templates = {
+        folder = 'templates',
+        date_format = '%Y-%m-%d',
+        time_format = '%H:%M',
+        -- A map for custom variables, the key should be the variable and the value a function
+        substitutions = {},
+      },
+
+      -- This requires you have `conceallevel` set to 1 or 2. See `:help conceallevel` for more details.
+      ui = {
+        enable = true, -- set to false to disable all additional syntax features
+        update_debounce = 200, -- update delay after a text change (in milliseconds)
+        max_file_length = 5000, -- disable UI features for files with more than this many lines
+        -- Define how various check-boxes are displayed
+        checkboxes = {
+          -- NOTE: the 'char' value has to be a single character, and the highlight groups are defined below.
+          [' '] = { char = '󰄱', hl_group = 'ObsidianTodo' },
+          ['x'] = { char = '', hl_group = 'ObsidianDone' },
+          ['>'] = { char = '', hl_group = 'ObsidianRightArrow' },
+          ['~'] = { char = '󰰱', hl_group = 'ObsidianTilde' },
+          ['!'] = { char = '', hl_group = 'ObsidianImportant' },
+          -- Replace the above with this if you don't have a patched font:
+          -- [" "] = { char = "☐", hl_group = "ObsidianTodo" },
+          -- ["x"] = { char = "✔", hl_group = "ObsidianDone" },
+
+          -- You can also add more custom ones...
+        },
+        -- Use bullet marks for non-checkbox lists.
+        bullets = { char = '•', hl_group = 'ObsidianBullet' },
+        external_link_icon = { char = '', hl_group = 'ObsidianExtLinkIcon' },
+        -- Replace the above with this if you don't have a patched font:
+        -- external_link_icon = { char = "", hl_group = "ObsidianExtLinkIcon" },
+        reference_text = { hl_group = 'ObsidianRefText' },
+        highlight_text = { hl_group = 'ObsidianHighlightText' },
+        tags = { hl_group = 'ObsidianTag' },
+        block_ids = { hl_group = 'ObsidianBlockID' },
+        hl_groups = {
+          -- The options are passed directly to `vim.api.nvim_set_hl()`. See `:help nvim_set_hl`.
+          ObsidianTodo = { bold = true, fg = '#f78c6c' },
+          ObsidianDone = { bold = true, fg = '#89ddff' },
+          ObsidianRightArrow = { bold = true, fg = '#f78c6c' },
+          ObsidianTilde = { bold = true, fg = '#ff5370' },
+          ObsidianImportant = { bold = true, fg = '#d73128' },
+          ObsidianBullet = { bold = true, fg = '#89ddff' },
+          ObsidianRefText = { underline = true, fg = '#c792ea' },
+          ObsidianExtLinkIcon = { fg = '#c792ea' },
+          ObsidianTag = { italic = true, fg = '#89ddff' },
+          ObsidianBlockID = { italic = true, fg = '#89ddff' },
+          ObsidianHighlightText = { bg = '#75662e' },
+        },
+      },
+
+      -- Specify how to handle attachments.
+      attachments = {
+        -- The default folder to place images in via `:ObsidianPasteImg`.
+        -- If this is a relative path it will be interpreted as relative to the vault root.
+        -- You can always override this per image by passing a full path to the command instead of just a filename.
+        img_folder = 'Images', -- This is the default
+        -- A function that determines the text to insert in the note when pasting an image.
+        -- It takes two arguments, the `obsidian.Client` and an `obsidian.Path` to the image file.
+        -- This is the default implementation.
+        ---@param client obsidian.Client
+        ---@param path obsidian.Path the absolute path to the image file
+        ---@return string
+        img_text_func = function(client, path)
+          path = client:vault_relative_path(path) or path
+          return string.format('![%s](%s)', path.name, path)
+        end,
+      },
+      completion = {
+        -- Set to false to disable completion.
+        nvim_cmp = true,
+        -- Trigger completion at 2 chars.
+        min_chars = 2,
+      },
+    },
+  },
+
+  {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    opts = {
+      size = 20,
+      auto_scroll = true, -- automatically scroll to the bottom on terminal output
+      open_mapping = [[<C-Tab>]], -- Set Ctrl + Tab as the toggle key
+      hide_numbers = true,
+      shade_filetypes = {},
+      start_in_insert = true,
+      insert_mappings = true,
+      terminal_mappings = true,
+      persist_size = true,
+      direction = 'float',
+      shell = vim.o.shell,
+      float_opts = {
+        border = 'curved',
+        winblend = 3,
+      },
+    },
+  },
+
+  {
+    'lervag/vimtex',
+    lazy = false, -- we don't want to lazy load VimTeX
+    -- tag = "v2.15", -- uncomment to pin to a specific release
+    init = function()
+      vim.g.vimtex_view_method = 'sioyek'
+      vim.g.vimtex_view_sioyek_exe = 'sioyek'
+      vim.g.vimtex_compiler_progname = 'nvr'
+      vim.g.vimtex_compiler_latexmk = {
+        build_dir = '',
+        callback = 1,
+        continuous = 1,
+        executable = 'latexmk',
+        options = {
+          '-pdf',
+          '-shell-escape',
+          '-verbose',
+          '-file-line-error',
+          '-synctex=1',
+          '-interaction=nonstopmode',
+        },
+      }
+    end,
+  },
+
   {
     'shortcuts/no-neck-pain.nvim',
     version = '*',
     opts = {
-      width = 153,
+      width = 113,
       buffers = {
         wo = {
           fillchars = 'eob: ',
@@ -20,6 +164,7 @@ return {
       },
     },
   },
+
   { 'xiyaowong/transparent.nvim', opts = {} },
   { 'wakatime/vim-wakatime', lazy = false },
 }
