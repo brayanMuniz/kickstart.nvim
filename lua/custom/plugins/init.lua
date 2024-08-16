@@ -1,3 +1,9 @@
+-- For preview md files (I think)
+-- when switching buffers open new window
+vim.g.mkdp_combine_preview_auto_refresh = 1
+vim.g.mkdp_auto_close = 0
+vim.g.mkdp_combine_preview = 1
+
 return {
   -- Custom snippets loader
   {
@@ -6,6 +12,11 @@ return {
       require('luasnip.loaders.from_lua').load { paths = '~/.config/nvim/snippets' }
     end,
   },
+
+  -- Folding
+  -- https://github.com/kevinhwang91/nvim-ufo
+  { 'kevinhwang91/nvim-ufo', dependencies = { 'kevinhwang91/promise-async' } },
+
   -- Preview md files
   {
     'iamcco/markdown-preview.nvim',
@@ -16,6 +27,7 @@ return {
     end,
   },
 
+  -- obsidian plugin
   {
     'epwalsh/obsidian.nvim',
     version = '*', -- recommended, use latest release instead of latest commit
@@ -37,6 +49,10 @@ return {
         {
           name = 'main',
           path = '~/Desktop/Obsidian',
+        },
+        {
+          name = 'school',
+          path = '~/Desktop/Code/website/public/',
         },
       },
 
@@ -141,7 +157,7 @@ return {
         ---@return string
         img_text_func = function(client, path)
           path = client:vault_relative_path(path) or path
-          return string.format('![%s](%s)', path.name, path)
+          return (string.format('![%s](%s)', path.name, path):gsub('%.png$', '.PNG'))
         end,
       },
 
@@ -154,28 +170,7 @@ return {
     },
   },
 
-  {
-    'akinsho/toggleterm.nvim',
-    version = '*',
-    opts = {
-      size = 20,
-      auto_scroll = true, -- automatically scroll to the bottom on terminal output
-      open_mapping = [[<C-Tab>]], -- Set Ctrl + Tab as the toggle key
-      hide_numbers = true,
-      shade_filetypes = {},
-      start_in_insert = true,
-      insert_mappings = true,
-      terminal_mappings = true,
-      persist_size = true,
-      direction = 'float',
-      shell = vim.o.shell,
-      float_opts = {
-        border = 'curved',
-        winblend = 3,
-      },
-    },
-  },
-
+  -- Latex
   {
     'lervag/vimtex',
     lazy = false, -- we don't want to lazy load VimTeX
@@ -217,7 +212,17 @@ return {
       },
     },
   },
-
-  { 'xiyaowong/transparent.nvim', opts = {} },
+  {
+    'xiyaowong/transparent.nvim',
+    config = function()
+      require('transparent').setup {
+        extra_groups = {
+          'NeoTreeNormal',
+          'NeoTreeNormalNC',
+          'NormalFloat',
+        },
+      }
+    end,
+  },
   { 'wakatime/vim-wakatime', lazy = false },
 }

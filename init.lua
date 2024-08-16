@@ -8,7 +8,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 --
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -67,7 +67,7 @@ vim.opt.inccommand = 'split'
 vim.opt.cursorline = true
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 16
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -86,15 +86,28 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
 --
+-- Key mappings for Obsidian commands
+vim.keymap.set('n', '<leader>Oo', ':ObsidianOpen<CR>', { desc = '[O]bsidian [O]pen' })
+vim.keymap.set('n', '<leader>On', ':ObsidianNew<CR>', { desc = '[O]bsidian [N]ew' })
+vim.keymap.set('n', '<leader>Of', ':ObsidianFollowLink<CR>', { desc = '[O]bsidian [F]ollow Link' })
+vim.keymap.set('n', '<leader>Ob', ':ObsidianBacklinks<CR>', { desc = '[O]bsidian [B]acklinks' })
+vim.keymap.set('n', '<leader>Ot', ':ObsidianTags<CR>', { desc = '[O]bsidian [T]ags' })
+vim.keymap.set('n', '<leader>Oi', ':ObsidianTemplate<CR>', { desc = '[O]bsidian Template [I]nsert' })
+vim.keymap.set('n', '<leader>Os', ':ObsidianSearch<CR>', { desc = '[O]bsidian [S]earch' })
+vim.keymap.set('n', '<leader>Ol', ':ObsidianLink<CR>', { desc = '[O]bsidian [L]ink' })
+vim.keymap.set('n', '<leader>Ok', ':ObsidianLinkNew<CR>', { desc = '[O]bsidian Lin[k] New' })
+vim.keymap.set('n', '<leader>Or', ':ObsidianLinks<CR>', { desc = '[O]bsidian Links [R]eferences' })
+vim.keymap.set('n', '<leader>Oe', ':ObsidianExtractNote<CR>', { desc = '[O]bsidian [E]xtract Note' })
+vim.keymap.set('n', '<leader>Ow', ':ObsidianWorkspace<CR>', { desc = '[O]bsidian [W]orkspace' })
+vim.keymap.set('n', '<leader>Op', ':ObsidianPasteImg<CR>', { desc = '[O]bsidian [P]aste Image' })
+vim.keymap.set('n', '<leader>Or', ':ObsidianRename<CR>', { desc = '[O]bsidian [R]ename' })
+vim.keymap.set('n', '<leader>Oc', ':ObsidianToggleCheckbox<CR>', { desc = '[O]bsidian [C]heckbox' })
+vim.keymap.set('n', '<leader>Ot', ':ObsidianTOC<CR>', { desc = '[O]bsidian [T]able Of Contents' })
+
+--
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
-
--- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -452,6 +465,8 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      --  Configurations Link:
+      --  https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
       local servers = {
         -- clangd = {},
         gopls = {},
@@ -463,11 +478,11 @@ require('lazy').setup({
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
         --    https://github.com/pmizio/typescript-tools.nvim
-        --
+        -- Web Development
         -- But for many setups, the LSP (`tsserver`) will work just fine
+        html = {},
         tsserver = {},
-        --
-
+        tailwindcss = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -576,6 +591,7 @@ require('lazy').setup({
             'rafamadriz/friendly-snippets',
             config = function()
               require('luasnip.loaders.from_vscode').lazy_load()
+              require('luasnip.loaders.from_vscode').lazy_load { paths = { '~/.config/nvim/snippets/' } } -- custom snippets
             end,
           },
         },
@@ -767,7 +783,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -797,13 +813,98 @@ require('lazy').setup({
   },
 })
 
--- Automatically run NoNeckPainToggleRightSide on startup
-vim.api.nvim_create_autocmd('VimEnter', {
+-- NOTE: to add word to spell list, use za
+-- Spell checking for .md files
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'markdown',
   callback = function()
-    vim.cmd 'NoNeckPain'
-    vim.defer_fn(function()
-      vim.cmd 'NoNeckPainToggleRightSide'
-    end, 100) -- Delay in milliseconds
+    vim.opt.spell = true
+    vim.opt.spelllang = { 'en_us', 'cjk' }
   end,
 })
+vim.api.nvim_set_keymap('n', '<leader>z', '1z=', { noremap = true, silent = true })
+
+-- Folding
+vim.o.foldcolumn = '1' -- '0' is not bad
+vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+vim.o.foldlevelstart = 99
+vim.o.foldenable = true
+
+vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+vim.keymap.set('n', 'zK', function()
+  local winid = require('ufo').peekFoldedLinesUnderCursor()
+  if not winid then
+    vim.lsp.buf.hover()
+  end
+end, { desc = 'Peek Fold' })
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.foldingRange = {
+  dynamicRegistration = false,
+  lineFoldingOnly = true,
+}
+local language_servers = require('lspconfig').util.available_servers() -- or list servers manually like {'gopls', 'clangd'}
+for _, ls in ipairs(language_servers) do
+  require('lspconfig')[ls].setup {
+    capabilities = capabilities,
+    -- you can add other fields for setting up lsp server in this table
+  }
+end
+
+vim.cmd [[hi Folded guibg=NONE ctermbg=NONE]]
+
+local handler = function(virtText, lnum, endLnum, width, truncate)
+  local newVirtText = {}
+  local suffix = (' 下 %d '):format(endLnum - lnum)
+  local sufWidth = vim.fn.strdisplaywidth(suffix)
+  local targetWidth = width - sufWidth
+  local curWidth = 0
+  for _, chunk in ipairs(virtText) do
+    local chunkText = chunk[1]
+    local chunkWidth = vim.fn.strdisplaywidth(chunkText)
+    if targetWidth > curWidth + chunkWidth then
+      table.insert(newVirtText, chunk)
+    else
+      chunkText = truncate(chunkText, targetWidth - curWidth)
+      local hlGroup = chunk[2]
+      table.insert(newVirtText, { chunkText, hlGroup })
+      chunkWidth = vim.fn.strdisplaywidth(chunkText)
+      -- str width returned from truncate() may less than 2nd argument, need padding
+      if curWidth + chunkWidth < targetWidth then
+        suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
+      end
+      break
+    end
+    curWidth = curWidth + chunkWidth
+  end
+  table.insert(newVirtText, { suffix, 'MoreMsg' })
+  return newVirtText
+end
+
+require('ufo').setup {
+  fold_virt_text_handler = handler,
+  open_fold_hl_timeout = 150,
+  close_fold_kinds_for_ft = {},
+  enable_get_fold_virt_text = false,
+
+  preview = {
+    win_config = {
+      border = { '', '', '', '', '', '', '', '' },
+      winhighlight = 'Normal:Normal',
+      winblend = 0,
+    },
+    mappings = {
+      scrollU = '<C-u>',
+      scrollD = '<C-d>',
+      jumpTop = '[',
+      jumpBot = ']',
+    },
+  },
+}
+
+-- Mapping for moving down/up half a page and centering the cursor
+vim.api.nvim_set_keymap('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
+
 -- The line beneath this is called `modeline`. See `:help modeline`

@@ -30,8 +30,31 @@ local date = function()
   return { os.date '%Y-%m-%d' }
 end
 
+-- NOTE: denote c as cursor position
+
 -- Define snippets
 ls.add_snippets('markdown', {
+  -- comments: [//]: # (c)
+  s('com', {
+    t '[//]: # (',
+    i(1, 'comment'),
+    t ')',
+  }),
+
+  -- Collapsible:
+  -- <details>
+  -- <summary>c</summary>
+  -- </details>
+  s({ trig = '\\col', wordTrig = false }, {
+    t { '<details>', '' },
+    t '<summary>',
+    i(1),
+    t '</summary>',
+    t { '', '</details>' },
+  }),
+
+  -- NOTE: Katex Helpers
+
   -- Inline math equation
   s('im', {
     t '$',
@@ -43,5 +66,36 @@ ls.add_snippets('markdown', {
     t { '$$', '' },
     i(1, 'equation'),
     t { '', '$$' },
+  }),
+
+  -- \tex -> \text{c}
+  s({ trig = '\\tex', wordTrig = false }, {
+    t '\\text{',
+    i(1),
+    t '}',
+  }),
+  -- \re to \reals
+  s({ trig = '\\re', wordTrig = false }, {
+    t '\\reals',
+  }),
+
+  -- ^{ to ^{c}
+  s({ trig = '^{' }, {
+    t '^{',
+    i(1),
+    t '}',
+  }),
+  -- _{ to _{c}
+  s({ trig = '_{' }, {
+    t '_{',
+    i(1),
+    t '}',
+  }),
+
+  -- \vec -> \vec{c}
+  s({ trig = '\\ve', wordTrig = false }, {
+    t '\\vec{',
+    i(1),
+    t '}',
   }),
 })
