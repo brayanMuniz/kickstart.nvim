@@ -468,11 +468,12 @@ require('lazy').setup({
       --  Configurations Link:
       --  https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
       local servers = {
-        -- clangd = {},
         gopls = {},
+        templ = {},
         pyright = {},
         htmx = {},
         texlab = {},
+        clangd = {}, -- c languages
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -549,7 +550,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = false, cpp = true } -- changed this to false for c
         return {
           timeout_ms = 500,
           lsp_fallback = not disable_filetypes[vim.bo[bufnr].filetype],
@@ -604,6 +605,7 @@ require('lazy').setup({
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
     },
+    --  https://github.com/L3MON4D3/LuaSnip
     config = function()
       -- See `:help cmp`
       local cmp = require 'cmp'
@@ -684,22 +686,33 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    -- 'folke/tokyonight.nvim',
+    -- vim.cmd.colorscheme 'tokyonight-night'
+    --
+    'catppuccin/nvim',
+    name = 'catppuccin',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
-
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
+      vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
 
   -- Highlight todo, notes, etc in comments
-  { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
-
+  -- https://github.com/folke/todo-comments.nvim
+  -- TODO:
+  -- NOTE:
+  -- WARNING:
+  -- OPTIMIZE:
+  -- FIX:
+  {
+    'folke/todo-comments.nvim',
+    event = 'VimEnter',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = { signs = true }, -- keywords recognized as todo comments
+  },
   { -- Collection of various small indepen /dent plugins/modules
     'echasnovski/mini.nvim',
     config = function()
@@ -906,5 +919,33 @@ require('ufo').setup {
 -- Mapping for moving down/up half a page and centering the cursor
 vim.api.nvim_set_keymap('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
+
+-- custom: make it brighter
+function LineNumberColors()
+  -- pink for lines above
+  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#FFB7D5', bold = true })
+  -- White for the current line
+  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#F8EEEC', bold = true })
+  -- purple for lines below
+  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#aa7eee', bold = true })
+end
+
+-- custom: i could not see gray :(
+vim.api.nvim_set_hl(0, 'Comment', { fg = '#d2a5b9', italic = true })
+
+LineNumberColors()
+
+-- for when I enter a line line below the comment, dont make new comment
+vim.cmd 'autocmd BufEnter * set formatoptions-=cro'
+vim.cmd 'autocmd BufEnter * setlocal formatoptions-=cro'
+
+-- navigating splits
+vim.api.nvim_set_keymap('n', '<C-J>', '<C-W><C-J>', {})
+vim.api.nvim_set_keymap('n', '<C-K>', '<C-W><C-K>', {})
+vim.api.nvim_set_keymap('n', '<C-L>', '<C-W><C-L>', {})
+vim.api.nvim_set_keymap('n', '<C-H>', '<C-W><C-H>', {})
+
+-- to quickly open todos
+vim.keymap.set('n', '<leader>st', ':TodoTelescope keywords=TODO,FIX,TEST<CR>', { desc = '[s]earch [t]odo' })
 
 -- The line beneath this is called `modeline`. See `:help modeline`

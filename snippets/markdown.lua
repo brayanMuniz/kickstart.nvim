@@ -41,6 +41,31 @@ ls.add_snippets('markdown', {
     t ')',
   }),
 
+  -- underline
+  -- <u>i</u>
+  s({ trig = 'underline', wordTrig = false }, {
+    t '<u>',
+    i(1),
+    t '</u>',
+  }),
+
+  -- image
+  -- ![img](../Images/c)
+  s({ trig = 'cimg', wordTrig = false }, {
+    t '![img](../Images/',
+    i(1),
+    t ')',
+  }),
+
+  -- table image
+  s({ trig = 'timg', wordTrig = false }, {
+    t { '| Image | Desc |', '| -------------- | --------------- |', '| ' },
+    i(1, 'Item1.1'),
+    t ' | ',
+    i(2, 'Item2.1'),
+    t ' |',
+  }),
+
   -- Collapsible:
   -- <details>
   -- <summary>c</summary>
@@ -56,7 +81,7 @@ ls.add_snippets('markdown', {
   -- NOTE: Katex Helpers
 
   -- Inline math equation
-  s('im', {
+  s('mathinline', {
     t '$',
     i(1, 'equation'),
     t '$',
@@ -96,6 +121,21 @@ ls.add_snippets('markdown', {
   s({ trig = '\\ve', wordTrig = false }, {
     t '\\vec{',
     i(1),
+    t '}',
+  }),
+
+  -- \ri -> rightarrow
+  s({ trig = '\\ri', wordTrig = false }, {
+    t '\\rightarrow',
+    i(1),
+  }),
+
+  -- \frac -> \frac{i}{i}
+  s({ trig = '\\frac', wordTrig = false }, {
+    t '\\frac{',
+    i(1, 'i'),
+    t '}{',
+    i(2, 'i'),
     t '}',
   }),
 })

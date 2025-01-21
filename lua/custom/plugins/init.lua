@@ -52,7 +52,7 @@ return {
         },
         {
           name = 'school',
-          path = '~/Desktop/Code/website/public/',
+          path = '~/Desktop/Code/website/public',
         },
       },
 
@@ -157,7 +157,7 @@ return {
         ---@return string
         img_text_func = function(client, path)
           path = client:vault_relative_path(path) or path
-          return (string.format('![%s](%s)', path.name, path):gsub('%.png$', '.PNG'))
+          return string.format('![%s](%s)', path.name, path)
         end,
       },
 
@@ -178,39 +178,10 @@ return {
     init = function()
       vim.g.vimtex_view_method = 'sioyek'
       vim.g.vimtex_view_sioyek_exe = 'sioyek'
+      vim.g.vimtex_view_sioyek_sync = 1
       vim.g.vimtex_compiler_progname = 'nvr'
-      vim.g.vimtex_compiler_latexmk = {
-        build_dir = '',
-        callback = 1,
-        continuous = 1,
-        executable = 'latexmk',
-        options = {
-          '-pdf',
-          '-shell-escape',
-          '-verbose',
-          '-file-line-error',
-          '-synctex=1',
-          '-interaction=nonstopmode',
-        },
-      }
+      vim.g.vimtex_callback_progpath = 'wsl nvim'
     end,
-  },
-
-  {
-    'shortcuts/no-neck-pain.nvim',
-    version = '*',
-    opts = {
-      width = 113,
-      buffers = {
-        wo = {
-          fillchars = 'eob: ',
-        },
-      },
-      bufferOptions = { enabled = false },
-      bufferOptionsScratchPad = {
-        enabled = false,
-      },
-    },
   },
   {
     'xiyaowong/transparent.nvim',
