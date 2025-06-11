@@ -86,25 +86,6 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
 -- is not what someone will guess without a bit more experience.
 --
--- Key mappings for Obsidian commands
-vim.keymap.set('n', '<leader>Oo', ':ObsidianOpen<CR>', { desc = '[O]bsidian [O]pen' })
-vim.keymap.set('n', '<leader>On', ':ObsidianNew<CR>', { desc = '[O]bsidian [N]ew' })
-vim.keymap.set('n', '<leader>Of', ':ObsidianFollowLink<CR>', { desc = '[O]bsidian [F]ollow Link' })
-vim.keymap.set('n', '<leader>Ob', ':ObsidianBacklinks<CR>', { desc = '[O]bsidian [B]acklinks' })
-vim.keymap.set('n', '<leader>Ot', ':ObsidianTags<CR>', { desc = '[O]bsidian [T]ags' })
-vim.keymap.set('n', '<leader>Oi', ':ObsidianTemplate<CR>', { desc = '[O]bsidian Template [I]nsert' })
-vim.keymap.set('n', '<leader>Os', ':ObsidianSearch<CR>', { desc = '[O]bsidian [S]earch' })
-vim.keymap.set('n', '<leader>Ol', ':ObsidianLink<CR>', { desc = '[O]bsidian [L]ink' })
-vim.keymap.set('n', '<leader>Ok', ':ObsidianLinkNew<CR>', { desc = '[O]bsidian Lin[k] New' })
-vim.keymap.set('n', '<leader>Or', ':ObsidianLinks<CR>', { desc = '[O]bsidian Links [R]eferences' })
-vim.keymap.set('n', '<leader>Oe', ':ObsidianExtractNote<CR>', { desc = '[O]bsidian [E]xtract Note' })
-vim.keymap.set('n', '<leader>Ow', ':ObsidianWorkspace<CR>', { desc = '[O]bsidian [W]orkspace' })
-vim.keymap.set('n', '<leader>Op', ':ObsidianPasteImg<CR>', { desc = '[O]bsidian [P]aste Image' })
-vim.keymap.set('n', '<leader>Or', ':ObsidianRename<CR>', { desc = '[O]bsidian [R]ename' })
-vim.keymap.set('n', '<leader>Oc', ':ObsidianToggleCheckbox<CR>', { desc = '[O]bsidian [C]heckbox' })
-vim.keymap.set('n', '<leader>Ot', ':ObsidianTOC<CR>', { desc = '[O]bsidian [T]able Of Contents' })
-
---
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
@@ -165,6 +146,7 @@ require('lazy').setup({
   --  This is equivalent to:
   --    require('Comment').setup({})
 
+  -- NOTE: comment/uncomment lines
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
 
@@ -204,25 +186,57 @@ require('lazy').setup({
   { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
-    config = function() -- This is the function that runs, AFTER loading
-      require('which-key').setup()
+    opts = {
+      -- delay between pressing a key and opening which-key (milliseconds)
+      -- this setting is independent of vim.o.timeoutlen
+      delay = 0,
+      icons = {
+        -- set icon mappings to true if you have a Nerd Font
+        mappings = vim.g.have_nerd_font,
+        -- If you are using a Nerd Font: set icons.keys to an empty table which will use the
+        -- default which-key.nvim defined Nerd Font icons, otherwise define a string table
+        keys = vim.g.have_nerd_font and {} or {
+          Up = '<Up> ',
+          Down = '<Down> ',
+          Left = '<Left> ',
+          Right = '<Right> ',
+          C = '<C-…> ',
+          M = '<M-…> ',
+          D = '<D-…> ',
+          S = '<S-…> ',
+          CR = '<CR> ',
+          Esc = '<Esc> ',
+          ScrollWheelDown = '<ScrollWheelDown> ',
+          ScrollWheelUp = '<ScrollWheelUp> ',
+          NL = '<NL> ',
+          BS = '<BS> ',
+          Space = '<Space> ',
+          Tab = '<Tab> ',
+          F1 = '<F1>',
+          F2 = '<F2>',
+          F3 = '<F3>',
+          F4 = '<F4>',
+          F5 = '<F5>',
+          F6 = '<F6>',
+          F7 = '<F7>',
+          F8 = '<F8>',
+          F9 = '<F9>',
+          F10 = '<F10>',
+          F11 = '<F11>',
+          F12 = '<F12>',
+        },
+      },
 
       -- Document existing key chains
-      require('which-key').register {
-        ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
-        ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
-        ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
-        ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
-        ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
-        ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
-        ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
-      }
-      -- visual mode
-      require('which-key').register({
-        ['<leader>h'] = { 'Git [H]unk' },
-      }, { mode = 'v' })
-    end,
+      spec = {
+        { '<leader>s', group = '[S]earch' },
+        { '<leader>t', group = '[T]oggle' },
+        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        { '<leader>o', group = '[O]bsidian' },
+      },
+    },
   },
+
   -- NOTE: Plugins can specify dependencies.
   --
   -- The dependencies are proper plugin specifications as well - anything
@@ -466,7 +480,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       --  Configurations Link:
-      --  https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md
+      -- https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
       local servers = {
         gopls = {},
         templ = {},
@@ -474,7 +488,8 @@ require('lazy').setup({
         htmx = {},
         texlab = {},
         clangd = {}, -- c languages
-        -- rust_analyzer = {},
+        svelte = {},
+        rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -482,8 +497,12 @@ require('lazy').setup({
         -- Web Development
         -- But for many setups, the LSP (`tsserver`) will work just fine
         html = {},
-        tsserver = {},
         tailwindcss = {},
+
+        -- TODO: fix this
+        -- tsserver = {},
+        ts_ls = {},
+
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -639,12 +658,6 @@ require('lazy').setup({
           --  This will expand snippets if the LSP sent a snippet.
           ['<C-y>'] = cmp.mapping.confirm { select = true },
 
-          -- If you prefer more traditional completion keymaps,
-          -- you can uncomment the following lines
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          --['<Tab>'] = cmp.mapping.select_next_item(),
-          --['<S-Tab>'] = cmp.mapping.select_prev_item(),
-
           -- Manually trigger a completion from nvim-cmp.
           --  Generally you don't need this, because nvim-cmp will display
           --  completions whenever it has completion options available.
@@ -686,17 +699,26 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+
+    -- tokyonight
     -- 'folke/tokyonight.nvim',
     -- vim.cmd.colorscheme 'tokyonight-night'
     --
-    'catppuccin/nvim',
-    name = 'catppuccin',
+
+    -- catppuccin
+    -- 'catppuccin/nvim',
+    -- vim.cmd.colorscheme 'catppuccin-mocha'
+
+    -- { "rose-pine/neovim", name = "rose-pine" }
+
+    'rose-pine/neovim',
+    name = 'rose-pine',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- You can configure highlights by doing something like:
-      vim.cmd.hi 'Comment gui=none'
-      vim.cmd.colorscheme 'catppuccin-mocha'
+      -- vim.cmd.hi 'Comment gui=none'
+      vim.cmd.colorscheme 'rose-pine-moon'
     end,
   },
 
@@ -835,105 +857,19 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.opt.spelllang = { 'en_us', 'cjk' }
   end,
 })
+
 vim.api.nvim_set_keymap('n', '<leader>z', '1z=', { noremap = true, silent = true })
-
--- Folding
-vim.o.foldcolumn = '1' -- '0' is not bad
-vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
-vim.o.foldlevelstart = 99
-vim.o.foldenable = true
-
-vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
-vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
-vim.keymap.set('n', 'zK', function()
-  local winid = require('ufo').peekFoldedLinesUnderCursor()
-  if not winid then
-    vim.lsp.buf.hover()
-  end
-end, { desc = 'Peek Fold' })
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities.textDocument.foldingRange = {
-  dynamicRegistration = false,
-  lineFoldingOnly = true,
-}
-local language_servers = require('lspconfig').util.available_servers() -- or list servers manually like {'gopls', 'clangd'}
-for _, ls in ipairs(language_servers) do
-  require('lspconfig')[ls].setup {
-    capabilities = capabilities,
-    -- you can add other fields for setting up lsp server in this table
-  }
-end
-
-vim.cmd [[hi Folded guibg=NONE ctermbg=NONE]]
-
-local handler = function(virtText, lnum, endLnum, width, truncate)
-  local newVirtText = {}
-  local suffix = (' 下 %d '):format(endLnum - lnum)
-  local sufWidth = vim.fn.strdisplaywidth(suffix)
-  local targetWidth = width - sufWidth
-  local curWidth = 0
-  for _, chunk in ipairs(virtText) do
-    local chunkText = chunk[1]
-    local chunkWidth = vim.fn.strdisplaywidth(chunkText)
-    if targetWidth > curWidth + chunkWidth then
-      table.insert(newVirtText, chunk)
-    else
-      chunkText = truncate(chunkText, targetWidth - curWidth)
-      local hlGroup = chunk[2]
-      table.insert(newVirtText, { chunkText, hlGroup })
-      chunkWidth = vim.fn.strdisplaywidth(chunkText)
-      -- str width returned from truncate() may less than 2nd argument, need padding
-      if curWidth + chunkWidth < targetWidth then
-        suffix = suffix .. (' '):rep(targetWidth - curWidth - chunkWidth)
-      end
-      break
-    end
-    curWidth = curWidth + chunkWidth
-  end
-  table.insert(newVirtText, { suffix, 'MoreMsg' })
-  return newVirtText
-end
-
-require('ufo').setup {
-  fold_virt_text_handler = handler,
-  open_fold_hl_timeout = 150,
-  close_fold_kinds_for_ft = {},
-  enable_get_fold_virt_text = false,
-
-  preview = {
-    win_config = {
-      border = { '', '', '', '', '', '', '', '' },
-      winhighlight = 'Normal:Normal',
-      winblend = 0,
-    },
-    mappings = {
-      scrollU = '<C-u>',
-      scrollD = '<C-d>',
-      jumpTop = '[',
-      jumpBot = ']',
-    },
-  },
-}
 
 -- Mapping for moving down/up half a page and centering the cursor
 vim.api.nvim_set_keymap('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
 vim.api.nvim_set_keymap('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
 
--- custom: make it brighter
-function LineNumberColors()
-  -- pink for lines above
-  vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#FFB7D5', bold = true })
-  -- White for the current line
-  vim.api.nvim_set_hl(0, 'LineNr', { fg = '#F8EEEC', bold = true })
-  -- purple for lines below
-  vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#aa7eee', bold = true })
-end
+-- relative line numbers
+vim.api.nvim_set_hl(0, 'LineNrAbove', { fg = '#c4a7e7' })
+vim.api.nvim_set_hl(0, 'LineNrBelow', { fg = '#c4a7e7' })
 
--- custom: i could not see gray :(
-vim.api.nvim_set_hl(0, 'Comment', { fg = '#d2a5b9', italic = true })
-
-LineNumberColors()
+-- Make comments purple
+vim.api.nvim_set_hl(0, 'Comment', { fg = '#c4a7e7', italic = true })
 
 -- for when I enter a line line below the comment, dont make new comment
 vim.cmd 'autocmd BufEnter * set formatoptions-=cro'
@@ -948,4 +884,7 @@ vim.api.nvim_set_keymap('n', '<C-H>', '<C-W><C-H>', {})
 -- to quickly open todos
 vim.keymap.set('n', '<leader>st', ':TodoTelescope keywords=TODO,FIX,TEST<CR>', { desc = '[s]earch [t]odo' })
 
--- The line beneath this is called `modeline`. See `:help modeline`
+-- visual vertiacal line
+vim.opt.colorcolumn = '100'
+
+NoNeckPain.enable()
